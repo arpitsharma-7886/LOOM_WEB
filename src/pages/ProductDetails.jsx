@@ -52,7 +52,6 @@ const ProductDetails = () => {
         if (firstSize) {
             setSelectedSize(firstSize.size);
             setMainImage(firstSize.images?.[0]);
-            navigate(`/product/${firstSize.variantId}`);
         }
     };
 
