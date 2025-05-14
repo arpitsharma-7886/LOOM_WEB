@@ -6,8 +6,7 @@ const ProductCard = ({product}) => {
     const navigate = useNavigate(); 
 
     const handleClick = () => {
-        // window.location.reload();
-        navigate(`/product/${product.shopify_product_id}`);
+        navigate(`/product/${product._id}`);
     };
 
     return (
@@ -20,7 +19,7 @@ const ProductCard = ({product}) => {
             {/* Image section */}
             <div className="w-full h-[330px] overflow-hidden">
                 <img
-                    src={product.preview_image}
+                    src={product?.images[0]?.url}
                     alt={product.title}
                     className="w-full h-full object-cover object-top cursor-pointer"
                     onClick={handleClick}
@@ -32,18 +31,18 @@ const ProductCard = ({product}) => {
                 <h3 className="text-[15px] text-gray-900 font-medium truncate">
                     {product.title}
                 </h3>
-                <p className="text-[15px] font-semibold text-gray-900">₹{product.selling_price}</p>
+                <p className="text-[15px] font-semibold text-gray-900">₹{product.lowestSellingPrice}</p>
 
                 {/* Color dots */}
-                <div className="flex items-center gap-1 mt-1">
-                    {product.colors?.slice(0, 3).map((color, idx) => (
+                <div className="flex items-center gap-1 mt-1 min-h-[16px]">
+                    {product.colorPreview?.slice(0, 3).map((color, idx) => (
                         <span
                             key={idx}
                             className="w-3.5 h-3.5 rounded-full border border-gray-300"
                             style={{ backgroundColor: color.toLowerCase() }}
                         />
                     ))}
-                    {product.colors?.length > 3 && (
+                    {product.colorPreview?.length > 3 && (
                         <span className="text-xs text-gray-600 ml-1">
                             +{product.colors.length - 3}
                         </span>
