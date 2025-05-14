@@ -18,12 +18,6 @@ const ProductDetails = () => {
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [showSizeChart, setShowSizeChart] = useState(false);
 
-    console.log(selectedColor,"selectedColor");
-    console.log(selectedSize,"selectedSize");
-
-
-    
-
     const fetchProduct = async () => {
         try {
             const response = await axios.get(`http://192.168.29.81:3002/product/admin/prod/product_details/${id}`);
@@ -36,14 +30,11 @@ const ProductDetails = () => {
                     color.sizes.some(size => size.variantId === data.data.defaultVariantId)
                 );
 
-                console?.log(matchedColor, 'matched')
-
                 if (matchedColor) {
                     setSelectedColor(matchedColor);
                     const matchedSize = matchedColor.sizes.find(size => size.variantId === data.data.defaultVariantId);
                     setSelectedSize(matchedSize?.size);
                     setMainImage(matchedSize?.images?.[0]);
-                    console.log(matchedSize, "matchedSize");
                 }
             }
         } catch (error) {
@@ -202,14 +193,14 @@ const ProductDetails = () => {
                         <div className="py-4 border-b">
                             <div className="flex justify-between items-center mb-3">
                                 <h2 className="font-medium">SELECT SIZE</h2>
-                                <button className="text-blue-600 text-sm" onClick={() => setShowSizeChart(true)}>Size Chart</button>
+                                <button className="text-blue-600 text-sm cursor-pointer" onClick={() => setShowSizeChart(true)}>Size Chart</button>
                             </div>
                             <div className="flex flex-wrap gap-3">
                                 {selectedColor.sizes.map(sizeObj => (
                                     <button
                                         key={sizeObj.size}
                                         onClick={() => handleSizeSelect(sizeObj)}
-                                        className={`w-14 h-14 rounded-full border ${selectedSize === sizeObj.size ? 'border-black bg-black text-white' : 'border-gray-300 hover:border-black'}`}
+                                        className={`w-10 h-10 rounded-full border ${selectedSize === sizeObj.size ? 'border-black bg-black text-white' : 'border-gray-300 hover:border-black'}`}
                                     >
                                         {sizeObj.size}
                                     </button>
