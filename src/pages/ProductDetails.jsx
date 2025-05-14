@@ -7,6 +7,7 @@ import axios from 'axios';
 import { FaLock, FaTruck, FaUndo } from 'react-icons/fa';
 import SizeChartModal from '../components/modals/SizeChartModal';
 import SimilarProducts from '../components/SimilarProducts';
+import useCart from '../store/useCart';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -17,6 +18,7 @@ const ProductDetails = () => {
     const [mainImage, setMainImage] = useState('');
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [showSizeChart, setShowSizeChart] = useState(false);
+    const { addItem } = useCart();
 
     const fetchProduct = async () => {
         try {
@@ -65,6 +67,7 @@ const ProductDetails = () => {
             toast.error('Please select a size');
             return;
         }
+        addItem(productData, selectedSize, selectedColor);
         toast.success('Added to cart successfully!');
     };
 
@@ -73,6 +76,7 @@ const ProductDetails = () => {
             toast.error('Please select a size');
             return;
         }
+        addItem(productData, selectedSize, selectedColor);
         navigate('/checkout');
     };
 
