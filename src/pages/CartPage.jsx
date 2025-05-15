@@ -3,6 +3,7 @@ import MainTemplate from '../components/MainTemplate';
 import useCart from '../store/useCart';
 import { Minus, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import EmptyCart from '../../src/assets/images/shopping.png'
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, getTotal } = useCart();
@@ -12,6 +13,7 @@ const CartPage = () => {
     return (
       <MainTemplate>
         <div className="min-h-screen flex flex-col items-center justify-center">
+          <img src={EmptyCart} alt="empty-cart" className='w-[200px]' />
           <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
           <button
             onClick={() => navigate('/')}

@@ -1,11 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import useCart from '../store/useCart';
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { items } = useCart();
-
   return (
     <nav
       className="fixed bottom-0 z-50 w-full h-16 bg-white border-t border-gray-100 shadow safe-area-bottom"
@@ -14,6 +9,7 @@ const Header = () => {
       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
     >
       <div className="grid h-full max-w-lg grid-cols-5 mx-auto">
+
         {/* Home */}
         <a
           href="/"
@@ -73,26 +69,23 @@ const Header = () => {
                 fill="#E16E50"
               />
             </svg>
-            {items.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                {items.length}
-              </span>
-            )}
           </div>
         </a>
 
-        {/* Account/Wishlist */}
+        {/* Account */}
         <a
-          href="/wishlist"
-          aria-label="Wishlist"
+          href="/account"
+          aria-label="Account"
           className="inline-flex flex-col items-center justify-center w-full h-full transition-all duration-200 ease-in-out relative"
         >
           <div className="h-6 flex items-center justify-center">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="7" r="4.5" fill="white" stroke="black" />
+              <path d="M3.7 21.3C3.7 17.7 7.3 14.8 11.78 14.8C16.23 14.8 19.83 17.7 19.83 21.3" fill="white" stroke="black" />
             </svg>
           </div>
         </a>
+
       </div>
     </nav>
   );

@@ -16,6 +16,8 @@ import WishlistPage from './pages/WishlistPage'
 import { Toaster } from 'react-hot-toast'
 
 function App() {
+
+  
   return (
     <BrowserRouter>
       <Toaster position="top-center" />

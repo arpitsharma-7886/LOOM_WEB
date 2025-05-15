@@ -175,12 +175,12 @@ const ProductDetails = () => {
                                 </span>
 
                                 {/* MRP with strikethrough */}
-                                <span className="text-base font-medium text-gray-500 line-through">
+                                <span className="text-base font-medium text-gray-500 line-through mt-[6px]">
                                     ₹{selectedSizeObj?.price?.mrp || '—'}
                                 </span>
 
                                 {/* Discount */}
-                                <span className="text-base font-medium text-green-600">
+                                <span className="text-base font-medium text-green-600 mt-[6px]">
                                     {selectedSizeObj?.price?.discountPercents ? `${selectedSizeObj?.price?.discountPercents}% off` : '—'}
                                 </span>
                             </div>
@@ -236,12 +236,26 @@ const ProductDetails = () => {
                                             __html:
                                                 title === 'DETAILS'
                                                     ? productData.description
-                                                    : `Information about ${title.toLowerCase()} will appear here.`,
+                                                    : title === 'DELIVERY'
+                                                        ? 'Goods are dispatched within 1–2 hours and shipped within 24 hours, except orders placed on Sundays and national holidays, which are processed on the next working day.'
+                                                        : title === 'RETURNS'
+                                                            ? `
+                <ul class="list-disc pl-4 space-y-1">
+                  <li>Hassle-free returns within 7 days under specific product and promotion conditions.</li>
+                  <li>Refunds for prepaid orders revert to the original payment method, while COD orders receive a wallet refund.</li>
+                  <li>Report defective, incorrect, or damaged items within 24 hours of delivery.</li>
+                  <li>Products bought during special promotions like BOGO are not eligible for returns.</li>
+                  <li>For excessive returns, reverse shipment fee up to Rs 100 can be charged, which will be deducted from the refund.</li>
+                  <li>Non-returnable items include accessories, sunglasses, perfumes, masks, and innerwear due to hygiene concerns.</li>
+                </ul>`
+                                                            : `Information about ${title.toLowerCase()} will appear here.`,
                                         }}
                                     />
                                 </details>
                             ))}
                         </div>
+
+
 
                         <div className="grid grid-cols-3 text-center text-sm text-gray-600 pt-6">
                             <div className="flex flex-col items-center gap-1">
