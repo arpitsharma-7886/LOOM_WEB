@@ -1,19 +1,38 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import useWishlist from '../store/useWishlist';
+import toast from 'react-hot-toast';
 
 const ProductCard = ({product}) => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
+    const { addItem, removeItem, isInWishlist } = useWishlist();
+    const isWishlisted = isInWishlist(product._id);
 
     const handleClick = () => {
         navigate(`/product/${product._id}`);
+    };
+
+    const toggleWishlist = (e) => {
+        e.stopPropagation();
+        if (isWishlisted) {
+            removeItem(product._id);
+            toast.success('Removed from wishlist');
+        } else {
+            addItem(product);
+            toast.success('Added to wishlist');
+        }
     };
 
     return (
         <div className="bg-white rounded-md shadow-md hover:shadow-lg transition-all relative overflow-hidden min-h-[380px] mb-6">
             {/* Wishlist icon */}
             <div className="absolute top-3 right-3 z-10">
-                <Heart size={20} className="text-gray-500 hover:text-black cursor-pointer" />
+                <Heart 
+                    size={20} 
+                    className={`cursor-pointer transition-colors ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-gray-500 hover:text-red-500'}`}
+                    onClick={toggleWishlist}
+                />
             </div>
 
             {/* Image section */}
@@ -50,7 +69,7 @@ const ProductCard = ({product}) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ProductCard
+export default ProductCard;

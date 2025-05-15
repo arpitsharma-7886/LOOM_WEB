@@ -12,10 +12,13 @@ import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import OrderSuccessPage from './pages/OrderSuccessPage'
 import CategoryProducts from './pages/CategoryProducts'
+import WishlistPage from './pages/WishlistPage'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-center" />
       <Routes>
         <Route path='/' element={<Home/>} />
         <Route path='/login' element={<LoginPage/>} />
@@ -25,6 +28,7 @@ function App() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/sub-category/:name/:id" element={<CategoryProducts />} />
         <Route path="/order-success" element={<OrderSuccessPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
       </Routes>
     </BrowserRouter>
   )
