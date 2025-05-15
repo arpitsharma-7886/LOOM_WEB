@@ -134,13 +134,13 @@ const ProductDetails = () => {
                         <div className="flex gap-4 mt-6">
                             <button
                                 onClick={handleAddToCart}
-                                className="flex-1 bg-yellow-500 text-white py-4 rounded-lg font-medium hover:bg-yellow-600 transition"
+                                className="flex-1 bg-[#6b7280] text-white py-4 rounded-lg font-medium hover:bg-[#eeebeb] hover:text-black transition cursor-pointer"
                             >
                                 ADD TO CART
                             </button>
                             <button
                                 onClick={handleBuyNow}
-                                className="flex-1 bg-orange-500 text-white py-4 rounded-lg font-medium hover:bg-orange-600 transition"
+                                className="flex-1 bg-[#000] text-white py-4 rounded-lg font-medium hover:bg-[#eeebeb] hover:text-black transition cursor-pointer"
                             >
                                 BUY NOW
                             </button>
@@ -159,22 +159,34 @@ const ProductDetails = () => {
                             </div>
                             <div className="flex items-center gap-4 mt-4">
                                 <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded">
-                                    <span>{productData.average_rating}</span>
+                                    <span>{productData.averageRating}</span>
                                     <Star size={14} fill="white" />
                                 </div>
-                                <span className="text-gray-500">{productData.total_ratings_count} ratings</span>
+                                <span className="text-gray-500">{productData.reviewCount} reviews</span>
                             </div>
                         </div>
 
                         {/* Price */}
                         <div className="py-4 border-b">
-                            <div className="flex items-center gap-3">
-                                <span className="text-2xl font-semibold">
+                            <div className="flex items-center gap-2">
+                                {/* Selling Price */}
+                                <span className="text-2xl font-bold text-black">
                                     ₹{selectedSizeObj?.price?.sellingPrice || '—'}
+                                </span>
+
+                                {/* MRP with strikethrough */}
+                                <span className="text-base font-medium text-gray-500 line-through">
+                                    ₹{selectedSizeObj?.price?.mrp || '—'}
+                                </span>
+
+                                {/* Discount */}
+                                <span className="text-base font-medium text-green-600">
+                                    {selectedSizeObj?.price?.discountPercents ? `${selectedSizeObj?.price?.discountPercents}% off` : '—'}
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 mt-1">inclusive of all taxes</p>
                         </div>
+
 
                         {/* Colors */}
                         <div className="py-4 border-b">

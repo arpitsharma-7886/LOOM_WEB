@@ -10,7 +10,7 @@ const ProductCard = ({product}) => {
     };
 
     return (
-        <div className="bg-white rounded-md shadow-md hover:shadow-lg transition-all relative overflow-hidden min-h-[380px]">
+        <div className="bg-white rounded-md shadow-md hover:shadow-lg transition-all relative overflow-hidden min-h-[380px] mb-6">
             {/* Wishlist icon */}
             <div className="absolute top-3 right-3 z-10">
                 <Heart size={20} className="text-gray-500 hover:text-black cursor-pointer" />

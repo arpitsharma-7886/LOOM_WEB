@@ -1,19 +1,31 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ShopByCategories = () => {
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
   console.log(categories, "categories");
 
 
   const fetchCategories = async () => {
-    const response = await axios.get('https://u6dwgkszzd.ap-south-1.awsapprunner.com/v3/home/featured-category/?platform=web');
-    setCategories(response?.data)
+    const response = await axios.get('http://192.168.29.81:3002/product/admin/cat_sub/get_sucategories_user');
+    const data = response?.data;
+    console.log(data?.data?.subcategories);
+
+
+    if (data?.success) {
+      setCategories(data?.data?.subcategories)
+    }
   }
 
   useEffect(() => {
     fetchCategories();
   }, [])
+
+  const handleCategory = (category) => {
+    navigate(`/sub-category/${category?.name}/${category?._id}`)
+  }
 
   return (
     <section className="py-10 bg-white">
@@ -24,17 +36,18 @@ const ShopByCategories = () => {
             <div
               key={index}
               className="relative group overflow-hidden rounded-md cursor-pointer"
+              onClick={() => { handleCategory(category) }}
             >
               {/* Image with zoom effect */}
               <img
-                src={category?.media_url}
-                alt={category?.collection_name}
+                src={category?.image}
+                alt={category?.name}
                 className="w-full h-[200px] object-cover transition-transform duration-500 group-hover:scale-110"
               />
 
               {/* Overlay title */}
               <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center py-2 font-bold text-sm tracking-wide">
-                {category?.collection_name?.toUpperCase()}
+                {category?.name?.toUpperCase()}
               </div>
             </div>
           ))}

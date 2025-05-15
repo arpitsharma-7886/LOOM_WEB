@@ -11,6 +11,7 @@ import ProductDetails from './pages/ProductDetails'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
 import OrderSuccessPage from './pages/OrderSuccessPage'
+import CategoryProducts from './pages/CategoryProducts'
 
 function App() {
   return (
@@ -20,8 +21,9 @@ function App() {
         <Route path='/login' element={<LoginPage/>} />
         <Route path='/otp' element={<OtpVerification/>} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/sub-category/:name/:id" element={<CategoryProducts />} />
         <Route path="/order-success" element={<OrderSuccessPage />} />
       </Routes>
     </BrowserRouter>
