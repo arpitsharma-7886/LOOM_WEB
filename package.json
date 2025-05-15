@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@bradgarropy/next-link": "^1.1.0",
+    "@supabase/supabase-js": "^2.39.7",
     "@tailwindcss/vite": "^4.1.5",
     "axios": "^1.9.0",
     "framer-motion": "^12.10.5",
