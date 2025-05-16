@@ -7,6 +7,9 @@ import EmptyCart from '../../src/assets/images/shopping.png'
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, getTotal } = useCart();
+
+  console.log(items );
+  
   const navigate = useNavigate();
 
   if (items.length === 0) {

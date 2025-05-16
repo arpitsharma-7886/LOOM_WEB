@@ -5,48 +5,56 @@ const useCart = create(
   persist(
     (set, get) => ({
       items: [],
+      
       addItem: (product, selectedSize, selectedColor) => {
+
+        console.log(selectedSize, 'selectedsize');
+        console.log(selectedColor, 'selectedColor');
+        
+        
         const items = get().items;
-        const existingItem = items.find(
-          item => 
-            item.id === product._id && 
-            item.size === selectedSize && 
-            item.color === selectedColor.name
+
+        const productId = product.productId || product._id; // Fallback if _id is ever used
+        const colorName = selectedColor?.value || selectedColor?.name || 'default';
+        const colorImage = selectedColor?.image || product.thumbnailImage;
+
+        const existingItemIndex = items.findIndex(
+          item =>
+            item.id === productId &&
+            item.size === selectedSize &&
+            item.color === colorName
         );
 
-        if (existingItem) {
-          set({
-            items: items.map(item =>
-              item === existingItem
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            ),
-          });
+        if (existingItemIndex !== -1) {
+          const updatedItems = [...items];
+          updatedItems[existingItemIndex].quantity += 1;
+          set({ items: updatedItems });
         } else {
           set({
             items: [
               ...items,
               {
-                id: product._id,
+                id: productId,
                 title: product.title,
-                price: product.lowestSellingPrice,
-                image: selectedColor.image,
+                price: product.lowestSellingPrice || product.basePrice || 0,
+                image: colorImage,
                 size: selectedSize,
-                color: selectedColor.name,
+                color: colorName,
                 quantity: 1,
               },
             ],
           });
         }
       },
+
       removeItem: (id, size, color) => {
         set({
           items: get().items.filter(
-            item => 
-              !(item.id === id && item.size === size && item.color === color)
+            item => !(item.id === id && item.size === size && item.color === color)
           ),
         });
       },
+
       updateQuantity: (id, size, color, quantity) => {
         set({
           items: get().items.map(item =>
@@ -56,7 +64,9 @@ const useCart = create(
           ),
         });
       },
+
       clearCart: () => set({ items: [] }),
+
       getTotal: () => {
         return get().items.reduce(
           (total, item) => total + item.price * item.quantity,
