@@ -1,83 +1,168 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import MainTemplate from '../components/MainTemplate';
+import useAuth from '../store/useAuth';
+import toast from 'react-hot-toast';
 
+const Otp = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { verifyOTP, login, redirectPath, isNewUser } = useAuth();
+    const [otp, setOtp] = useState(['', '', '', '', '']);
+    const [loading, setLoading] = useState(false);
+    const [timer, setTimer] = useState(30);
+    const [canResend, setCanResend] = useState(false);
+    const phoneNumber = location.state?.phoneNumber;
 
-const OtpVerification = () => {
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(15);
-  const navigate = useNavigate();
+    useEffect(() => {
+        if (!phoneNumber) {
+            navigate('/login');
+            return;
+        }
 
-  useEffect(() => {
-    if (timer === 0) return;
-    const countdown = setInterval(() => {
-      setTimer((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(countdown);
-  }, [timer]);
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        } else {
+            setCanResend(true);
+        }
+    }, [timer, phoneNumber, navigate]);
 
-  const handleChange = (e, index) => {
-    const value = e.target.value;
-    if (!/^\d?$/.test(value)) return;
+    const handleOtpChange = (index, value) => {
+        if (value.length > 1) return;
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+        if (value && index < 4) {
+            const nextInput = document.querySelector(`input[name=otp-${index + 1}]`);
+            if (nextInput) nextInput.focus();
+        }
+    };
 
-    if (value && index < 3) {
-      document.getElementById(`otp-${index + 1}`).focus();
-    }
-  };
+    const handleKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            const prevInput = document.querySelector(`input[name=otp-${index - 1}]`);
+            if (prevInput) prevInput.focus();
+        }
+    };
 
-  return (
-    <div className="bg-white px-4 py-8 min-h-screen">
-      <div className="w-full max-w-md mx-auto mt-6">
-        {/* Top Bar */}
-        <div className="flex items-center mb-6">
-          <ArrowLeft className="cursor-pointer" onClick={()=>{navigate('/login')}} />
-          <h1 className="text-lg font-semibold mx-auto">
-            LOGIN OR SIGNUP
-          </h1>
-        </div>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const otpString = otp.join('');
+        if (otpString.length !== 5) {
+            toast.error('Please enter a valid 5-digit OTP');
+            return;
+        }
 
-        {/* Info */}
-        <p className="text-center text-gray-700 mb-6">
-          Enter 4-digit OTP sent to <span className="font-medium">+91 8449407886</span>
-        </p>
+        try {
+            setLoading(true);
+            const success = await verifyOTP(phoneNumber, otpString);
+            if (success) {
+                if (isNewUser) {
+                    navigate('/register', { state: { phoneNumber } });
+                } else {
+                    const from = location.state?.from || redirectPath || '/';
+                    navigate(from);
+                }
+            }
+        } catch (error) {
+            toast.error(error.message || 'Failed to verify OTP');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        {/* OTP Inputs */}
-        <div className="flex justify-center gap-4 mb-6">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              id={`otp-${index}`}
-              type="text"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(e, index)}
-              className="w-16 h-16 text-center border border-black text-xl focus:outline-none"
-            />
-          ))}
-        </div>
+    const handleResendOTP = async () => {
+        if (!canResend) return;
+        
+        try {
+            setLoading(true);
+            await login(phoneNumber, true);
+            setTimer(30);
+            setCanResend(false);
+            toast.success('OTP resent successfully');
+        } catch (error) {
+            toast.error(error.message || 'Failed to resend OTP');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        {/* Timer or OTP resend options */}
-        {timer > 0 ? (
-          <p className="text-center text-black font-medium">
-            RESEND IN &nbsp;
-            <span className="inline-block w-12">{`00:${timer.toString().padStart(2, '0')}`}</span>
-          </p>
-        ) : (
-          <div className="text-center mt-6">
-            <p className="text-black font-medium mb-4">Didn't get OTP?</p>
-            <div className="flex justify-center gap-4">
-              <button className="px-4 py-2 border border-black text-black font-medium">Get via SMS</button>
-              <button className="px-4 py-2 bg-black text-white font-medium">Get via Call</button>
+    return (
+        <MainTemplate>
+            <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
+                <div className="max-w-md w-full space-y-8">
+                    <div className="mt-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                        <div className="flex justify-center items-center flex-col mb-8">
+                            <img src="/loom_2.jpg" alt="LOOM" className="w-32 h-32 rounded-full shadow-lg mb-4" />
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                Verify OTP
+                            </h2>
+                            <p className="mt-2 text-sm text-gray-600">
+                                Enter the 5-digit code sent to {phoneNumber}
+                            </p>
+                        </div>
+
+                        <form className="space-y-8" onSubmit={handleSubmit}>
+                            <div className="flex justify-center space-x-3">
+                                {otp.map((digit, index) => (
+                                    <input
+                                        key={index}
+                                        type="text"
+                                        name={`otp-${index}`}
+                                        maxLength="1"
+                                        value={digit}
+                                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(index, e)}
+                                        className="w-14 h-14 text-center text-2xl font-semibold border-2 border-gray-300 rounded-xl focus:border-black focus:ring-2 focus:ring-black focus:ring-opacity-50 transition-all duration-200"
+                                    />
+                                ))}
+                            </div>
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                >
+                                    {loading ? (
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
+                                        'Verify OTP'
+                                    )}
+                                </button>
+                            </div>
+
+                            <div className="text-center">
+                                <button
+                                    type="button"
+                                    onClick={handleResendOTP}
+                                    disabled={!canResend || loading}
+                                    className="text-sm text-gray-600 hover:text-black disabled:opacity-50 transition-colors duration-200 font-medium"
+                                >
+                                    {canResend ? 'Resend OTP' : `Resend OTP in ${timer}s`}
+                                </button>
+                            </div>
+                        </form>
+
+                        <div className="mt-6 text-center text-sm text-gray-600">
+                            Didn't receive the code?{' '}
+                            <button
+                                onClick={handleResendOTP}
+                                disabled={!canResend || loading}
+                                className="font-medium text-black hover:text-gray-900 disabled:opacity-50"
+                            >
+                                Try another method
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+        </MainTemplate>
+    );
 };
 
-export default OtpVerification;
+export default Otp;

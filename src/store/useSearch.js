@@ -10,7 +10,7 @@ const useSearch = create((set) => ({
   search: async (query) => {
     set({ loading: true });
     try {
-      const response = await fetch(`http://192.168.29.81:3002/product/admin/prod/search?q=${query}`);
+      const response = await fetch(`http://192.168.29.92:3002/product/admin/prod/search?q=${query}`);
       const data = await response.json();
       set({ results: data.data.products, loading: false });
     } catch (error) {

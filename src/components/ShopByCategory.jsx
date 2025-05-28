@@ -5,13 +5,11 @@ import { useNavigate } from 'react-router-dom';
 const ShopByCategories = () => {
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
-  console.log(categories, "categories");
 
 
   const fetchCategories = async () => {
-    const response = await axios.get('http://192.168.29.81:3002/product/admin/cat_sub/get_sucategories_user');
+    const response = await axios.get('http://192.168.29.92:3002/product/admin/cat_sub/get_sucategories_user');
     const data = response?.data;
-    console.log(data?.data?.subcategories);
 
 
     if (data?.success) {

@@ -1,11 +1,39 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ProductCard from './ProductCard'
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const SimilarProducts = ({ id }) => {
-    const [similarProducts, setSimilarProducts] = useState([])
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const observerRef = useRef();
+
+    useEffect(() => {
+        const fetchSimilarProducts = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await axios.get(`http://192.168.29.92:3002/product/admin/prod/similar_products/${id}?page=1&limit=50`);
+                
+                if (response.data?.success) {
+                    setProducts(response.data.data || []);
+                } else {
+                    setError('Failed to load similar products');
+                }
+            } catch (error) {
+                console.error('Error fetching similar products:', error);
+                setError('Failed to load similar products');
+                setProducts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSimilarProducts();
+    }, [id]);
 
     const fetchSimilarProducts = async (pageNum = 1) => {
         try {
@@ -16,19 +44,13 @@ const SimilarProducts = ({ id }) => {
                 if (data.data.products.length === 0) {
                     setHasMore(false); // No more products
                 } else {
-                    setSimilarProducts((prev) => [...prev, ...data.data.products]);
+                    setProducts((prev) => [...prev, ...data.data.products]);
                 }
             }
         } catch (error) {
             console.error("Error fetching products:", error);
         }
     };
-
-    useEffect(() => {
-        setPage(1);
-        setSimilarProducts([]);
-        fetchSimilarProducts(1);
-    }, [id]);
 
     const lastProductRef = useCallback((node) => {
         if (observerRef.current) observerRef.current.disconnect();
@@ -42,30 +64,66 @@ const SimilarProducts = ({ id }) => {
         if (node) observerRef.current.observe(node);
     }, [hasMore]);
 
-    return (
-        <div className="mt-16">
-            <h2 className="text-3xl font-bold text-center mb-10">YOU MAY ALSO LIKE</h2>
-            <div className="container mx-auto px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {similarProducts.map((product, index) => {
-                        const isLastProduct = index === similarProducts.length - 1;
-                        return (
-                            <div
-                                key={product.shopify_product_id}
-                                ref={isLastProduct ? lastProductRef : null}
-                            >
-                                <ProductCard product={product} />
+    if (loading) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[...Array(4)].map((_, index) => (
+                            <div key={index} className="space-y-2">
+                                <div className="h-48 bg-gray-200 rounded"></div>
+                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                             </div>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </div>
-                {!hasMore && (
-                    <div className="text-center text-gray-500 mt-6">No more products to load.</div>
-                )}
+            </div>
+        );
+    }
+
+    if (error || products.length === 0) {
+        return null; // Don't show anything if there's an error or no products
+    }
+
+    return (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+            <h2 className="text-2xl font-bold mb-6">Similar Products</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {products.map((product) => (
+                    <Link
+                        key={product._id}
+                        to={`/product/${product._id}`}
+                        className="group"
+                    >
+                        <div className="space-y-2">
+                            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                    src={product.images?.[0]}
+                                    alt={product.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                            </div>
+                            <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+                                {product.title}
+                            </h3>
+                            <div className="flex items-baseline space-x-2">
+                                <span className="text-lg font-bold text-gray-900">
+                                    ₹{product.price?.sellingPrice || '—'}
+                                </span>
+                                {product.price?.mrp && (
+                                    <span className="text-sm text-gray-500 line-through">
+                                        ₹{product.price.mrp}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </Link>
+                ))}
             </div>
         </div>
-
-    )
-}
+    );
+};
 
 export default SimilarProducts

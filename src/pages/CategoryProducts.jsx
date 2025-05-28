@@ -16,7 +16,7 @@ const CategoryProducts = () => {
 
 
     const fetchedProducts = async () => {
-        const response = await axios.get(`http://192.168.29.81:3002/product/admin/prod/get_product_BySubcategory3/${id}`)
+        const response = await axios.get(`http://192.168.29.92:3002/product/admin/prod/get_product_BySubcategory3/${id}`)
         console.log(response?.data, "response ")
     
         if(response?.data?.success){
