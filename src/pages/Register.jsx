@@ -70,8 +70,9 @@ const Register = () => {
 
       const success = await register(registrationData);
       if (success) {
-        // Navigate back to the original page
-        navigate(from || '/', { replace: true });
+        // Navigate back to the original page or home if no path specified
+        const redirectPath = from || '/';
+        navigate(redirectPath, { replace: true });
       } else {
         setError('Registration failed. Please try again.');
       }
@@ -182,6 +183,17 @@ const Register = () => {
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center text-sm text-gray-600">
+          By continuing, you agree to our{' '}
+          <a href="/terms" className="font-medium text-black hover:text-gray-900">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy" className="font-medium text-black hover:text-gray-900">
+            Privacy Policy
+          </a>
+        </div>
       </div>
     </div>
   );

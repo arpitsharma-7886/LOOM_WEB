@@ -61,8 +61,9 @@ const Otp = () => {
             setLoading(true);
             const success = await verifyOTP(phoneNumber, otpString);
             if (success) {
+                const { isNewUser } = useAuth.getState();
                 if (isNewUser) {
-                    navigate('/register', { state: { phoneNumber } });
+                    navigate('/register', { state: { phoneNumber, from: location.state?.from } });
                 } else {
                     const from = location.state?.from || redirectPath || '/';
                     navigate(from);
