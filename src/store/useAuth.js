@@ -17,7 +17,7 @@ const useAuth = create(
       isNewUser: false,
 
       setRedirectPath: (path) => {
-        set({ redirectPath: path });
+        set({ redirectPath: path || '/' });
       },
 
       initialize: async () => {
@@ -26,8 +26,9 @@ const useAuth = create(
           try {
             set({ loading: true })
             const response = await axios.get(`${API_URL}/auth_user/user/getprofile`, {
-              headers: { accessToken: token }
+              headers: { 'accessToken': token }
             })
+            
             if (response.data.success) {
               set({
                 token,
@@ -45,6 +46,7 @@ const useAuth = create(
               })
             }
           } catch (error) {
+            console.error('Profile fetch error:', error)
             localStorage.removeItem('token')
             set({
               token: null,
@@ -110,16 +112,10 @@ const useAuth = create(
 
       logout: async () => {
         try {
-          const token = get().token
-          if (token) {
-            await axios.post(`${API_URL}/auth/logout`, {}, {
-              headers: { accessToken: token }
-            })
-          }
-        } catch (error) {
-          console.error('Logout error:', error)
-        } finally {
+          // Clear token from localStorage
           localStorage.removeItem('token')
+          
+          // Reset all state
           set({
             token: null,
             user: null,
@@ -129,6 +125,8 @@ const useAuth = create(
             redirectPath: '/',
             isNewUser: false
           })
+        } catch (error) {
+          console.error('Logout error:', error)
         }
       },
 
@@ -142,7 +140,7 @@ const useAuth = create(
 
           const response = await axios.get(`${API_URL}/auth_user/user/getprofile`, {
             headers: {
-              accessToken: token
+              'accessToken': token
             }
           })
 
@@ -194,6 +192,74 @@ const useAuth = create(
           console.error('Profile update error:', error)
           set({ 
             error: error.response?.data?.message || error.message || 'Failed to update profile',
+            loading: false 
+          })
+          return false
+        }
+      },
+
+      register: async (data) => {
+        try {
+          set({ loading: true, error: null })
+          const token = localStorage.getItem('token')
+          
+          if (!token) {
+            set({ loading: false, error: 'No authentication token found' })
+            return false
+          }
+
+          const response = await axios.post(`${API_URL}/auth_user/user/register`, data, {
+            headers: {
+              'accessToken': token
+            }
+          })
+
+          if (response.data.success) {
+            // Get the new token from the response
+            const newToken = response.data.data.accesstoken || token
+            
+            // Save the new token
+            localStorage.setItem('token', newToken)
+            set({ 
+              user: response.data.data,
+              token: newToken,
+              loading: false,
+              error: null,
+              isNewUser: false,
+              isAuthenticated: true
+            })
+
+            // Wait a bit before fetching the profile to ensure backend processing is complete
+            setTimeout(async () => {
+              try {
+                const profileResponse = await axios.get(`${API_URL}/auth_user/user/getprofile`, {
+                  headers: { 'accessToken': newToken }
+                })
+                
+                if (profileResponse.data.success) {
+                  set({ 
+                    user: profileResponse.data.data,
+                    loading: false
+                  })
+                }
+              } catch (profileError) {
+                console.error('Profile fetch after registration error:', profileError)
+                // Don't fail the registration if profile fetch fails
+                // The user can still use the app and the profile will be fetched on next page load
+              }
+            }, 1000) // Wait 1 second before fetching profile
+
+            return true
+          }
+          set({ 
+            error: response.data.message || 'Failed to register',
+            loading: false 
+          })
+          return false
+        } catch (error) {
+          console.error('Registration error:', error)
+          set({ 
+            error: error.response?.data?.message || error.message || 'Failed to register',
             loading: false 
           })
           return false
