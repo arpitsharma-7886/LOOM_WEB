@@ -9,6 +9,7 @@ import SizeChartModal from '../components/modals/SizeChartModal';
 import SimilarProducts from '../components/SimilarProducts';
 import useCart from '../store/useCart';
 import useAuth from '../store/useAuth';
+import ProductImageGallery from '../components/ProductImageGallery';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -33,7 +34,7 @@ const ProductDetails = () => {
 
         try {
             setLoading(true);
-            const response = await fetch(`http://192.168.29.92:3002/product/admin/prod/product_details/${id}`);
+            const response = await fetch(`https://product-api.compactindiasolutions.com/product/admin/prod/product_details/${id}`);
             const data = await response.json();
             if (data.success) {
                 // Sort sizes for each color
@@ -201,55 +202,15 @@ const ProductDetails = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Product Images */}
                         <div className="space-y-4">
-                            <div className="flex gap-4">
-                                {/* Display Images */}
-                                {displayImages.length > 0 && (
-                                    <div className="flex flex-col gap-4">
-                                        {displayImages.map((image, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => setSelectedImage(index)}
-                                                className={`aspect-square w-20 rounded-xl overflow-hidden ${
-                                                    selectedImage === index
-                                                        ? 'ring-2 ring-black'
-                                                        : 'hover:ring-2 hover:ring-gray-300'
-                                                }`}
-                                            >
-                                                <img
-                                                    src={image}
-                                                    alt={`${productData.title} ${index + 1}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
+                            <ProductImageGallery
+                                images={displayImages}
+                                title={productData.title}
+                                onWishlistToggle={toggleWishlist}
+                                isWishlisted={isWishlisted}
+                            />
 
-                                {/* Selected Image */}
-                                <div className="relative flex-1 aspect-square rounded-2xl overflow-hidden bg-gray-100">
-                                    {displayImages[selectedImage] ? (
-                                        <img
-                                            src={displayImages[selectedImage]}
-                                            alt={productData.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            No image available
-                                        </div>
-                                    )}
-                                    {/* Wishlist Button */}
-                                    <button
-                                        onClick={toggleWishlist}
-                                        className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
-                                    >
-                                        <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-4 mt-6">
+                            {/* Action Buttons - Desktop View */}
+                            <div className="hidden md:flex gap-4 mt-6">
                                 <button
                                     onClick={handleAddToCart}
                                     className="flex-1 bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-900 transition-all transform hover:scale-[1.02] disabled:bg-gray-400 disabled:transform-none shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
@@ -269,7 +230,7 @@ const ProductDetails = () => {
                         {/* Product Info */}
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <h1 className="text-3xl font-bold text-gray-900">{productData.title}</h1>
+                                <h1 className="text-3xl font-bold text-gray-900">{productData.title} - {selectedColor?.value}</h1>
                                 <button
                                     onClick={handleShare}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -312,7 +273,7 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Description */}
-                            <div className="space-y-4">
+                            {/* <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-gray-900">Description</h3>
                                 <div className="text-gray-600 space-y-4">
                                     {productData.description && (
@@ -362,7 +323,7 @@ const ProductDetails = () => {
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Color Selection */}
                             <div className="space-y-3">
@@ -451,37 +412,56 @@ const ProductDetails = () => {
                                 </div>
                             </div>
 
-                                                    {/* Extra Info */}
-                        <div className="divide-y rounded-lg overflow-hidden mt-4">
-                            {['DETAILS', 'OFFER', 'REVIEWS', 'DELIVERY', 'RETURNS'].map(title => (
-                                <details key={title} className="group p-4 border-b-gray-300">
-                                    <summary className="cursor-pointer font-medium text-gray-800 group-open:text-black">
-                                        {title}
-                                    </summary>
-                                    <p
-                                        className="text-sm text-gray-600 mt-2"
-                                        dangerouslySetInnerHTML={{
-                                            __html:
-                                                title === 'DETAILS'
-                                                    ? productData.description
-                                                    : title === 'DELIVERY'
-                                                        ? 'Goods are dispatched within 1–2 hours and shipped within 24 hours, except orders placed on Sundays and national holidays, which are processed on the next working day.'
-                                                        : title === 'RETURNS'
-                                                            ? `
-                                                                <ul class="list-disc pl-4 space-y-1">
-                                                                <li>Hassle-free returns within 7 days under specific product and promotion conditions.</li>
-                                                                <li>Refunds for prepaid orders revert to the original payment method, while COD orders receive a wallet refund.</li>
-                                                                <li>Report defective, incorrect, or damaged items within 24 hours of delivery.</li>
-                                                                <li>Products bought during special promotions like BOGO are not eligible for returns.</li>
-                                                                <li>For excessive returns, reverse shipment fee up to Rs 100 can be charged, which will be deducted from the refund.</li>
-                                                                <li>Non-returnable items include accessories, sunglasses, perfumes, masks, and innerwear due to hygiene concerns.</li>
-                                                                </ul>`
-                                                            : `Information about ${title.toLowerCase()} will appear here.`,
-                                        }}
-                                    />
-                                </details>
-                            ))}
-                        </div>
+                            {/* Mobile Bottom Bar */}
+                            <div className="md:hidden bg-white border-t border-gray-200">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleAddToCart}
+                                        className="flex-1 bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all transform hover:scale-[1.02] disabled:bg-gray-400 disabled:transform-none shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+                                    >
+                                        <ShoppingCart className="w-5 h-5" />
+                                        <span>Add to Cart</span>
+                                    </button>
+                                    <button
+                                        onClick={handleBuyNow}
+                                        className="flex-1 bg-white text-black py-3 rounded-xl font-semibold border-2 border-black hover:bg-gray-50 transition-all transform hover:scale-[1.02] disabled:bg-gray-100 disabled:transform-none shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
+                                    >
+                                        <span>Buy Now</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Extra Info */}
+                            <div className="divide-y rounded-lg overflow-hidden mt-4">
+                                {['DETAILS', 'OFFER', 'REVIEWS', 'DELIVERY', 'RETURNS'].map(title => (
+                                    <details key={title} className="group p-4 border-b-gray-300">
+                                        <summary className="cursor-pointer font-medium text-gray-800 group-open:text-black">
+                                            {title}
+                                        </summary>
+                                        <p
+                                            className="text-sm text-gray-600 mt-2"
+                                            dangerouslySetInnerHTML={{
+                                                __html:
+                                                    title === 'DETAILS'
+                                                        ? productData.description
+                                                        : title === 'DELIVERY'
+                                                            ? 'Goods are dispatched within 1–2 hours and shipped within 24 hours, except orders placed on Sundays and national holidays, which are processed on the next working day.'
+                                                            : title === 'RETURNS'
+                                                                ? `
+                                                                    <ul class="list-disc pl-4 space-y-1">
+                                                                    <li>Hassle-free returns within 7 days under specific product and promotion conditions.</li>
+                                                                    <li>Refunds for prepaid orders revert to the original payment method, while COD orders receive a wallet refund.</li>
+                                                                    <li>Report defective, incorrect, or damaged items within 24 hours of delivery.</li>
+                                                                    <li>Products bought during special promotions like BOGO are not eligible for returns.</li>
+                                                                    <li>For excessive returns, reverse shipment fee up to Rs 100 can be charged, which will be deducted from the refund.</li>
+                                                                    <li>Non-returnable items include accessories, sunglasses, perfumes, masks, and innerwear due to hygiene concerns.</li>
+                                                                    </ul>`
+                                                                : `Information about ${title.toLowerCase()} will appear here.`,
+                                            }}
+                                        />
+                                    </details>
+                                ))}
+                            </div>
 
                             {/* Additional Info */}
                             <div className="border-t border-gray-300 pt-6">

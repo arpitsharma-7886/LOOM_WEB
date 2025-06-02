@@ -13,7 +13,7 @@ const NewAndPopular = () => {
 
   const fetchProducts = async (pageNum = 1, category = activeCategory) => {
     try {
-      const res = await axios.get(`http://192.168.29.92:3002/product/admin/cat_sub/get_sucategories_user?limit=20&page=${pageNum}`);
+      const res = await axios.get(`https://product-api.compactindiasolutions.com/product/admin/cat_sub/get_sucategories_user?limit=20&page=${pageNum}`);
       const data = res?.data;
 
       if (data?.success) {
