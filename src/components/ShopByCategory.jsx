@@ -8,7 +8,7 @@ const ShopByCategories = () => {
 
 
   const fetchCategories = async () => {
-    const response = await axios.get('http://192.168.29.92:3002/product/admin/cat_sub/get_sucategories_user');
+    const response = await axios.get('https://product-api.compactindiasolutions.com/product/admin/cat_sub/get_sucategories_user');
     const data = response?.data;
 
 

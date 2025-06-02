@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight, Search, X, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '../ui/Button';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -9,10 +10,48 @@ const Hero = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [slides, setSlides] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [recentSearches, setRecentSearches] = useState(() => {
+        const saved = localStorage.getItem('recentSearches');
+        return saved ? JSON.parse(saved).slice(0, 8) : [];
+    });
+    const searchRef = useRef(null);
+    const navigate = useNavigate();
+
+    // Handle click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const addToRecentSearches = (query) => {
+        setRecentSearches(prev => {
+            const filtered = prev.filter(item => item !== query);
+            const updated = [query, ...filtered].slice(0, 8);
+            localStorage.setItem('recentSearches', JSON.stringify(updated));
+            return updated;
+        });
+    };
+
+    const removeRecentSearch = (queryToRemove) => {
+        setRecentSearches(prev => {
+            const updated = prev.filter(query => query !== queryToRemove);
+            localStorage.setItem('recentSearches', JSON.stringify(updated));
+            return updated;
+        });
+    };
 
     const fetchBanners = async () => {
         try {
-            const response = await axios.get('http://192.168.29.92:3000/api/user/banners');
+            const response = await axios.get('https://admin-api.compactindiasolutions.com/api/user/banners');
             if (response.data.success) {
                 // Filter only active banners and map them to the required format
                 const activeBanners = response.data.banners
@@ -70,44 +109,120 @@ const Hero = () => {
         }
     };
 
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            addToRecentSearches(searchQuery.trim());
+            setShowSuggestions(false);
+            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setSearchQuery(suggestion);
+        addToRecentSearches(suggestion);
+        setShowSuggestions(false);
+        navigate(`/search?q=${encodeURIComponent(suggestion)}`);
     };
 
     return (
         <section className="relative h-screen overflow-hidden">
-
-            {/* Animated Search Bar */}
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-[40%]">
-                <div className="flex items-center">
-                    <div className="relative flex items-center h-10 border border-white w-full cursor-pointer mx-4">
+            {/* Search Bar */}
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl" ref={searchRef}>
+                <div className="relative">
+                    <form onSubmit={handleSearch} className="flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
                         {/* Search Icon */}
-                        <div className="ml-2">
-                            <span>
-                                <Search strokeWidth={0.75} className='text-white' />
-                            </span>
+                        <div className="pl-4">
+                            <Search className="w-5 h-5 text-white" />
                         </div>
 
                         {/* Input */}
                         <input
-                            className="flex-1 h-full w-full bg-transparent focus:outline-none px-3 text-white "
+                            className="flex-1 h-12 bg-transparent focus:outline-none px-4 text-white placeholder-white/70"
                             value={searchQuery}
                             placeholder="Search..."
-                            onChange={handleSearchChange}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onFocus={() => setShowSuggestions(true)}
                         />
 
-                        {/* Animated Suggestions */}
-                        {/* <div className="pointer-events-none absolute h-full w-full px-5 ml-5 flex items-center">
-                            <div className="relative h-7 w-full overflow-hidden">
-                                <div className="absolute inset-0 flex flex-col justify-center text-white text-xs font-light font-[NewHeroTRIAL-Light] transition-all duration-500 ease-in-out"> */}
-                                    {/* Active suggestion (visible) */}
-                                    {/* <div className="flex absolute transform translate-y-0 opacity-100 transition-all duration-500">
-                                        <div className="py-1 px-1">Search "white shirt"</div>
+                        {/* Clear Button */}
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setShowSuggestions(false);
+                                }}
+                                className="pr-4 text-white/70 hover:text-white transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        )}
+
+                        {/* Search Button */}
+                        <button
+                            type="submit"
+                            className="px-6 h-12 bg-white/10 hover:bg-white/20 text-white rounded-r-full transition-colors"
+                        >
+                            Search
+                        </button>
+                    </form>
+
+                    {/* Suggestions Dropdown */}
+                    {showSuggestions && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl overflow-hidden">
+                            <div className="p-4">
+                                {/* Recent Searches */}
+                                {recentSearches.length > 0 && (
+                                    <div className="mt-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-sm font-medium text-gray-500">Recent Searches</h3>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {recentSearches.map((search, index) => (
+                                                <div key={index} className="group relative">
+                                                    <button
+                                                        onClick={() => handleSuggestionClick(search)}
+                                                        className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 hover:bg-gray-200 transition-colors pr-8"
+                                                    >
+                                                        {search}
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeRecentSearch(search);
+                                                        }}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Popular Searches */}
+                                <div>
+                                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                                        <TrendingUp className="w-4 h-4" />
+                                        <span>Popular Searches</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['Shirts', 'T-Shirts', 'Jeans', 'Trousers', 'Cargos', 'Shorts'].map((suggestion) => (
+                                            <button
+                                                key={suggestion}
+                                                onClick={() => handleSuggestionClick(suggestion)}
+                                                className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
-                        </div> */}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

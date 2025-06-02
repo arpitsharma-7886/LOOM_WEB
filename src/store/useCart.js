@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import useAuth from './useAuth';
 
-const API_URL = 'http://192.168.29.92:3004';
+const API_URL = 'https://cart-api.compactindiasolutions.com';
 
 const useCart = create(
     persist(

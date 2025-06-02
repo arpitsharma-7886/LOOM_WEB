@@ -17,7 +17,7 @@ const Header = () => {
     return (
         <div className='flex justify-center items-center'>
             <nav
-                className="fixed bottom-5 z-50 md:w-[40%] h-16 bg-white border-t border-gray-100 shadow safe-area-bottom rounded-xl"
+                className="fixed bottom-5 z-50 w-full md:w-[40%] h-16 bg-white border-t border-gray-100 shadow safe-area-bottom rounded-xl"
                 role="navigation"
                 aria-label="Main navigation"
                 style={{ transform: 'translateZ(0)', willChange: 'transform' }}

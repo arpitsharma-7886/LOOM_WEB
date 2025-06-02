@@ -17,6 +17,7 @@ import OrderSuccessPage from './pages/OrderSuccessPage'
 import WishlistPage from './pages/WishlistPage'
 import useAuth from './store/useAuth';
 import Cart from './pages/Cart';
+import SearchResults from './pages/SearchResults';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -80,6 +81,7 @@ function App() {
             <WishlistPage />
           </ProtectedRoute>
         } />
+        <Route path="/search" element={<SearchResults />} />
       </Routes>
     </Router>
   );
