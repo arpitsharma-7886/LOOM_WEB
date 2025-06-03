@@ -51,7 +51,11 @@ const Cart = () => {
             toast.error('Your cart is empty');
             return;
         }
-        navigate('/checkout');
+        navigate('/checkout', {
+            state: {
+                cartData: cartData // Pass the entire cart data
+            }
+        });
     };
 
     if (!isAuthenticated) {
@@ -112,7 +116,7 @@ const Cart = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Cart Items */}
                             <div className="lg:col-span-2 space-y-4">
-                                
+
                                 {cartData.items.map((item) => (
                                     <div
                                         key={item._id}
@@ -132,30 +136,30 @@ const Cart = () => {
                                             <div className="flex-1">
                                                 <div>
                                                     <div className='flex justify-between items-center'>
-                                                            <h3 className="font-semibold text-lg text-gray-900 hover:text-[#2874f0] transition-colors">
-                                                                {item.productTitle}
-                                                            </h3>
-                                                            <p className="font-semibold text-gray-900">Delivery by {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                                                        </div>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            <span>Color:</span> <span>{item.color}</span>
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            <span>Size:</span> <span>{item.size}</span>
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            Seller: <span>Loom Fashion</span>
-                                                        </p>
-                                                        <div className='flex items-center gap-3'>
-                                                            {item.priceSnapshot.basePrice > parseInt(item.priceSnapshot.sellingPrice) && (
-                                                                <p className="text-sm text-gray-500 line-through">
-                                                                    ₹{item.priceSnapshot.basePrice}
-                                                                </p>
-                                                            )}
-                                                            <p className="font-semibold text-gray-900 text-lg">
-                                                                ₹{parseInt(item.priceSnapshot.sellingPrice)}
+                                                        <h3 className="font-semibold text-lg text-gray-900 hover:text-[#2874f0] transition-colors">
+                                                            {item.productTitle}
+                                                        </h3>
+                                                        <p className="font-semibold text-gray-900">Delivery by {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        <span>Color:</span> <span>{item.color}</span>
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        <span>Size:</span> <span>{item.size}</span>
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        Seller: <span>Loom Fashion</span>
+                                                    </p>
+                                                    <div className='flex items-center gap-3'>
+                                                        {item.priceSnapshot.basePrice > parseInt(item.priceSnapshot.sellingPrice) && (
+                                                            <p className="text-sm text-gray-500 line-through">
+                                                                ₹{item.priceSnapshot.basePrice}
                                                             </p>
-                                                        </div>
+                                                        )}
+                                                        <p className="font-semibold text-gray-900 text-lg">
+                                                            ₹{parseInt(item.priceSnapshot.sellingPrice)}
+                                                        </p>
+                                                    </div>
                                                 </div>
 
                                                 <div className="mt-6 flex items-center justify-between">
@@ -180,7 +184,7 @@ const Cart = () => {
                                                     >
                                                         <Trash2 className="w-5 h-5" />
                                                     </button>
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>
@@ -192,13 +196,13 @@ const Cart = () => {
                             <div className="lg:col-span-1">
                                 <div className="bg-white rounded-sm p-6 shadow-sm sticky top-8">
                                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Price Details</h2>
-                                    
+
                                     <div className="space-y-4">
                                         <div className="flex justify-between text-gray-600">
                                             <span>Price ({cartData.itemCount} <span>{cartData.itemCount == 1 ? 'item' : 'items'}</span>)</span>
                                             <span>₹{cartData.pricingSummary.baseTotal}</span>
                                         </div>
-                                        
+
                                         {parseInt(cartData.pricingSummary.savings) > 0 && (
                                             <div className="flex justify-between">
                                                 <span>Discount</span>

@@ -1,61 +1,233 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Wallet, Lock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import useAuth from '../store/useAuth';
+import useCart from '../store/useCart';
+import AddressManager from '../components/AddressManager';
+import AddressForm from '../components/AddressForm';
+// import CustomPaymentModal from '../components/CustomPaymentModal';
+import PaymentPage from './PaymentPage';
+import axios from 'axios';
+
+
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [address, setAddress] = useState({
-    fullName: '',
-    phone: '',
-    street: '',
-    city: '',
-    state: '',
-    pincode: '',
-  });
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const { cartData, loading: cartLoading } = useCart();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setAddress(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  console.log(addresses, "addresses");
+  
+
+  // Fetch addresses from API
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get('http://192.168.29.92:3001/auth_user/address/addresses', {
+        headers: {
+          'accesstoken': `${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.data.success) {
+        const allAddresses = [];
+        
+        // Add default address if exists
+        if (response.data.data.defaultAddress) {
+          const defaultAddr = response.data.data.defaultAddress;
+          allAddresses.push({
+            id: defaultAddr._id,
+            fullName: defaultAddr.name,
+            phone: defaultAddr.mobile,
+            street: `${defaultAddr.houseNumber}, ${defaultAddr.area}`,
+            city: defaultAddr.city,
+            state: defaultAddr.state,
+            pincode: defaultAddr.pinCode,
+            country: defaultAddr.country,
+            type: defaultAddr.isDefault ? 'Home' : 'Other'
+          });
+        }
+
+        // Add other addresses if exist
+        if (response.data.data.otherAddresses && response.data.data.otherAddresses.length > 0) {
+          const otherAddresses = response.data.data.otherAddresses.map(addr => ({
+            id: addr._id,
+            fullName: addr.name,
+            phone: addr.mobile,
+            street: `${addr.houseNumber}, ${addr.area}`,
+            city: addr.city,
+            state: addr.state,
+            pincode: addr.pinCode,
+            country: addr.country,
+            type: addr.isDefault ? 'Home' : 'Other'
+          }));
+          allAddresses.push(...otherAddresses);
+        }
+
+        setAddresses(allAddresses);
+        
+        // Set default address as selected if exists
+        if (response.data.data.defaultAddress) {
+          const defaultAddr = response.data.data.defaultAddress;
+          setSelectedAddress({
+            id: defaultAddr._id,
+            fullName: defaultAddr.name,
+            phone: defaultAddr.mobile,
+            street: `${defaultAddr.houseNumber}, ${defaultAddr.area}`,
+            city: defaultAddr.city,
+            state: defaultAddr.state,
+            pincode: defaultAddr.pinCode,
+            country: defaultAddr.country,
+            type: 'Home'
+          });
+        } else if (allAddresses.length > 0) {
+          setSelectedAddress(allAddresses[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+      toast.error('Failed to load addresses');
+    }
   };
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAddresses();
+    }
+  }, [isAuthenticated]);
+
+  const handleAddNewAddress = () => {
+    setEditingAddress(null);
+    setShowAddressForm(true);
+  };
+
+  const handleEditAddress = (address) => {
+    setEditingAddress(address);
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      await axios.delete(
+        `http://192.168.29.92:3001/auth_user/address/delete/${addressId}`,
+        {
+          headers: {
+            'accesstoken': `${localStorage.getItem('token')}`
+          }
+        }
+      );
+      toast.success('Address deleted successfully');
+      fetchAddresses(); // Refresh the address list
+    } catch (error) {
+      console.error('Error deleting address:', error);
+      toast.error('Failed to delete address');
+    }
+  };
+
+  const handleAddressSubmit = async (addressData) => {
+    try {
+      const apiData = {
+        name: addressData.fullName,
+        mobile: addressData.phone,
+        pinCode: addressData.pincode,
+        houseNumber: addressData.street.split(',')[0]?.trim() || '',
+        area: addressData.street.split(',').slice(1).join(',').trim() || addressData.street,
+        city: addressData.city,
+        state: addressData.state,
+        country: 'India',
+        isDefault: addressData.type === 'Home'
+      };
+
+      if (editingAddress) {
+        // Update existing address
+        await axios.patch(
+          `http://192.168.29.92:3001/auth_user/address/update/${editingAddress.id}`,
+          apiData,
+          {
+            headers: {
+              'accesstoken': `${localStorage.getItem('token')}`
+            }
+          }
+        );
+        toast.success('Address updated successfully');
+      } else {
+        // Create new address
+        await axios.post(
+          'http://192.168.29.92:3001/auth_user/address/create',
+          apiData,
+          {
+            headers: {
+              'accesstoken': `${localStorage.getItem('token')}`
+            }
+          }
+        );
+        toast.success('Address added successfully');
+      }
+      
+      setShowAddressForm(false);
+      fetchAddresses(); // Refresh the address list
+    } catch (error) {
+      console.error('Error saving address:', error);
+      toast.error('Failed to save address');
+    }
+  };
+
+  const handleCheckout = async (e) => {
     e.preventDefault();
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/checkout' } });
+
+    if (!selectedAddress) {
+      toast.error('Please select a delivery address');
       return;
     }
 
-    setLoading(true);
     try {
-      // Replace with your API call
-      await fetch('/api/orders', {
-        method: 'POST',
+      setLoading(true);
+      
+      // Create checkout order
+      const checkoutResponse = await axios.post('http://192.168.29.92:3006/order/check/checkout', {
+        addressId: selectedAddress.id,
+        couponCode: "", // Add coupon handling if needed
+        couponDiscount: 0,
+        walletPointsToUse: 0
+      }, {
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          address,
-          paymentMethod,
-        }),
+          'accesstoken': `${localStorage.getItem('token')}`
+        }
       });
 
-      toast.success('Order placed successfully!');
-      navigate('/order-success');
+      if (!checkoutResponse.data?.success) {
+        throw new Error(checkoutResponse.data?.message || 'Checkout failed');
+      }
+
+      const orderId = checkoutResponse.data?.data?.orderId;
+      if (!orderId) {
+        throw new Error('Order ID not received from checkout');
+      }
+
+      // Navigate to payment page with order details
+      navigate('/payment', {
+        state: {
+          selectedAddress,
+          orderTotal: cartData?.pricingSummary?.finalAmount || 0,
+          itemCount: cartData?.itemCount || 0,
+          cartData,
+          orderId // Pass the orderId to payment page
+        }
+      });
+
     } catch (error) {
-      console.error('Error placing order:', error);
-      toast.error('Failed to place order');
+      console.error('Checkout Error:', error);
+      toast.error(error.message || 'Failed to process checkout');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,135 +248,27 @@ const Checkout = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
+          {/* Left Column - Address and Payment */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Address Form */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-6">Delivery Address</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={address.fullName}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={address.phone}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Street Address
-                  </label>
-                  <input
-                    type="text"
-                    name="street"
-                    value={address.street}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={address.city}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={address.state}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      PIN Code
-                    </label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      value={address.pincode}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            {/* Payment Method */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-6">Payment Method</h2>
-              <div className="space-y-4">
-                <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`w-full p-4 border rounded-xl flex items-center space-x-4 ${
-                    paymentMethod === 'card'
-                      ? 'border-black bg-gray-50'
-                      : 'hover:border-gray-400'
-                  }`}
-                >
-                  <CreditCard className="w-6 h-6" />
-                  <span className="font-medium">Credit/Debit Card</span>
-                </button>
-                <button
-                  onClick={() => setPaymentMethod('upi')}
-                  className={`w-full p-4 border rounded-xl flex items-center space-x-4 ${
-                    paymentMethod === 'upi'
-                      ? 'border-black bg-gray-50'
-                      : 'hover:border-gray-400'
-                  }`}
-                >
-                  <Wallet className="w-6 h-6" />
-                  <span className="font-medium">UPI</span>
-                </button>
-              </div>
-            </div>
+            {/* Address Section */}
+            <AddressManager
+              addresses={addresses}
+              selectedAddress={selectedAddress}
+              onAddressSelect={setSelectedAddress}
+              onAddNewClick={handleAddNewAddress}
+              onEditAddress={handleEditAddress}
+              onDeleteAddress={handleDeleteAddress}
+            />
           </div>
 
-          {/* Order Summary */}
+          {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
               <div className="space-y-4">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>₹2,999</span>
+                  <span>{cartData?.pricingSummary?.finalAmount}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
@@ -216,14 +280,18 @@ const Checkout = () => {
                 </div>
                 <div className="border-t pt-4 flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>₹3,299</span>
+                  <span>{cartData?.pricingSummary?.finalAmount}</span>
                 </div>
               </div>
 
               <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="w-full bg-black text-white py-4 rounded-xl font-semibold mt-6 hover:bg-gray-900 transition-colors flex items-center justify-center space-x-2"
+                onClick={handleCheckout}
+                disabled={loading || !selectedAddress}
+                className={`w-full py-4 rounded-xl font-semibold mt-6 flex items-center justify-center space-x-2 ${
+                  loading || !selectedAddress
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-black text-white hover:bg-gray-900'
+                } transition-colors`}
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -238,12 +306,32 @@ const Checkout = () => {
               <p className="text-sm text-gray-500 mt-4 text-center">
                 By placing your order, you agree to our Terms of Service and Privacy Policy
               </p>
+
+              {/* <PaymentPage
+                isOpen={showCustomModal}
+                onClose={() => setShowCustomModal(false)}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                customPaymentDetails={customPaymentDetails}
+                handleCustomPaymentInput={handleCustomPaymentInput}
+                handleCustomPayment={handleCustomPayment}
+                loading={loading}
+              /> */}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Address Form Modal */}
+      {showAddressForm && (
+        <AddressForm
+          address={editingAddress}
+          onSubmit={handleAddressSubmit}
+          onClose={() => setShowAddressForm(false)}
+        />
+      )}
     </div>
   );
 };
 
-export default Checkout; 
+export default Checkout;

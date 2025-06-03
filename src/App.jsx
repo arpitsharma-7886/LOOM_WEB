@@ -17,6 +17,9 @@ import OrderSuccessPage from './pages/OrderSuccessPage'
 import WishlistPage from './pages/WishlistPage'
 import useAuth from './store/useAuth';
 import Cart from './pages/Cart';
+import PaymentPage from './pages/PaymentPage';
+import Orders from './pages/Orders';
+import OrderDetails from './pages/OrderDetails';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -80,6 +83,13 @@ function App() {
             <WishlistPage />
           </ProtectedRoute>
         } />
+        <Route path="/payment" element={
+          // <ProtectedRoute>
+            <PaymentPage />
+          // </ProtectedRoute>
+        } />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/order/:orderId" element={<OrderDetails />} />
       </Routes>
     </Router>
   );
