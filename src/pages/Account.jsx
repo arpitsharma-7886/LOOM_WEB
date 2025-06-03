@@ -21,7 +21,7 @@ import MainTemplate from '../components/MainTemplate';
 
 const Account = () => {
   const navigate = useNavigate();
-  const { user, token, updateUser } = useAuth();
+  const { user, token, updateUser, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -85,7 +85,6 @@ const Account = () => {
     try {
       setLoading(true);
       await logout();
-      navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {

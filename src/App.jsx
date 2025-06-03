@@ -20,6 +20,7 @@ import Cart from './pages/Cart';
 import PaymentPage from './pages/PaymentPage';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
+import SearchResults from './pages/SearchResults';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -90,6 +91,7 @@ function App() {
         } />
         <Route path="/orders" element={<Orders />} />
         <Route path="/order/:orderId" element={<OrderDetails />} />
+        <Route path="/search" element={<SearchResults />} />
       </Routes>
     </Router>
   );
