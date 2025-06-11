@@ -10,6 +10,7 @@ import SimilarProducts from '../components/SimilarProducts';
 import useCart from '../store/useCart';
 import useAuth from '../store/useAuth';
 import ProductImageGallery from '../components/ProductImageGallery';
+import PageHeader from '../components/PageHeader';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -34,7 +35,7 @@ const ProductDetails = () => {
 
         try {
             setLoading(true);
-            const response = await fetch(`https://product-api.compactindiasolutions.com/product/admin/prod/product_details/${id}`);
+            const response = await fetch(`http://localhost:3002/product/admin/prod/product_details/${id}`);
             const data = await response.json();
             if (data.success) {
                 // Sort sizes for each color
@@ -183,23 +184,13 @@ const ProductDetails = () => {
         <MainTemplate>
             <Toaster position="top-center" />
             <div className="min-h-screen bg-white">
-                {/* Header */}
-                <div className="bg-white shadow-sm sticky top-0 z-10">
-                    <div className="max-w-7xl mx-auto px-4 py-4">
-                        <div className="flex items-center">
-                            <button
-                                onClick={() => navigate(-1)}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                                <ArrowLeft className="w-6 h-6" />
-                            </button>
-                            <h1 className="text-lg font-semibold ml-4">Product Details</h1>
-                        </div>
-                    </div>
-                </div>
+                <PageHeader 
+                    title="Product Details" 
+                    className="sticky top-0 z-10"
+                />
 
-                <div className="max-w-7xl mx-auto px-4 py-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                         {/* Product Images */}
                         <div className="space-y-4">
                             <ProductImageGallery
@@ -228,22 +219,23 @@ const ProductDetails = () => {
                         </div>
 
                         {/* Product Info */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h1 className="text-3xl font-bold text-gray-900">{productData.title} - {selectedColor?.value}</h1>
+                        <div className="space-y-4 md:space-y-6">
+                            <div className="flex items-start justify-between">
+                                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{productData.title} - {selectedColor?.value}</h1>
                                 <button
                                     onClick={handleShare}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors shrink-0"
                                 >
-                                    <Share2 className="w-6 h-6" />
+                                    <Share2 className="w-5 h-5" />
                                 </button>
                             </div>
+
                             <div className="flex items-center mt-2 space-x-2">
                                 <div className="flex items-center">
                                     {[...Array(5)].map((_, i) => (
                                         <Star
                                             key={i}
-                                            className={`w-5 h-5 ${
+                                            className={`w-4 h-4 md:w-5 md:h-5 ${
                                                 i < productData.averageRating
                                                     ? 'text-yellow-400 fill-current'
                                                     : 'text-gray-300'
@@ -251,79 +243,26 @@ const ProductDetails = () => {
                                         />
                                     ))}
                                 </div>
-                                <span className="text-gray-500">({productData.reviewCount} reviews)</span>
+                                <span className="text-sm md:text-base text-gray-500">({productData.reviewCount} reviews)</span>
                             </div>
 
                             <div className="flex items-baseline space-x-4">
-                                <span className="text-3xl font-bold text-gray-900">
+                                <span className="text-2xl md:text-3xl font-bold text-gray-900">
                                     ₹{parseInt(selectedSizeObj?.price?.sellingPrice) || '—'}
                                 </span>
 
                                 {selectedSizeObj?.price?.mrp && (
-                                    <span className="text-xl text-gray-500 line-through">
+                                    <span className="text-lg md:text-xl text-gray-500 line-through">
                                         ₹{parseInt(selectedSizeObj?.price?.mrp)}
                                     </span>
                                 )}
 
                                 {selectedSizeObj?.price?.discountPercents && (
-                                    <span className="text-lg text-green-600">
+                                    <span className="text-base md:text-lg text-green-600">
                                         {selectedSizeObj?.price?.discountPercents}% off
                                     </span>
                                 )}
                             </div>
-
-                            {/* Description */}
-                            {/* <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Description</h3>
-                                <div className="text-gray-600 space-y-4">
-                                    {productData.description && (
-                                        <p>
-                                            {productData.description.replace(/<[^>]*>/g, '')}
-                                        </p>
-                                    )}
-
-                                    {productData.sizeAndFit && (
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium text-gray-900">Size & Fit</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-gray-600">
-                                                {Object.entries(productData.sizeAndFit).map(([key, value]) => (
-                                                    <li key={key}>{`${key} - ${value}`}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {productData.washCare && (
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium text-gray-900">Wash Care</h4>
-                                            <p className="text-gray-600">{productData.washCare}</p>
-                                        </div>
-                                    )}
-
-                                    {productData.specifications && (
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium text-gray-900">Specification</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-gray-600">
-                                                {Array.isArray(productData.specifications) 
-                                                    ? productData.specifications.map((spec, index) => (
-                                                        <li key={index}>{spec}</li>
-                                                    ))
-                                                    : Object.entries(productData.specifications).map(([key, value]) => (
-                                                        <li key={key}>{`${key} - ${value}`}</li>
-                                                    ))
-                                                }
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {productData.sku && (
-                                        <div className="text-sm text-gray-500">
-                                            <h4>SKU:</h4> 
-                                            <p>{productData.sku}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div> */}
 
                             {/* Color Selection */}
                             <div className="space-y-3">
@@ -339,7 +278,7 @@ const ProductDetails = () => {
                                                     : 'hover:ring-2 hover:ring-gray-300'
                                             }`}
                                         >
-                                            <div className="w-14 h-14 rounded-full overflow-hidden">
+                                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden">
                                                 <img
                                                     src={color.image}
                                                     alt={color.value}
@@ -372,7 +311,7 @@ const ProductDetails = () => {
                                             <button
                                                 key={sizeObj._id || sizeObj.size}
                                                 onClick={() => handleSizeSelect(sizeObj)}
-                                                className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm md:text-base ${
                                                     selectedSizeObj?.size === sizeObj.size
                                                         ? 'bg-black text-white'
                                                         : 'border border-gray-200 hover:border-gray-300'
@@ -387,7 +326,7 @@ const ProductDetails = () => {
                             {/* Quantity Selector */}
                             <div className="space-y-2">
                                 <div className="flex items-center space-x-4">
-                                    <span className="text-gray-700">Quantity:</span>
+                                    <span className="text-sm md:text-base text-gray-700">Quantity:</span>
                                     <div className="flex items-center border rounded-lg">
                                         <button
                                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -395,7 +334,7 @@ const ProductDetails = () => {
                                         >
                                             -
                                         </button>
-                                        <span className="px-4 py-2">{quantity}</span>
+                                        <span className="px-4 py-2 text-sm md:text-base">{quantity}</span>
                                         <button
                                             onClick={() => {
                                                 if (quantity < 5) {
@@ -412,8 +351,8 @@ const ProductDetails = () => {
                                 </div>
                             </div>
 
-                            {/* Mobile Bottom Bar */}
-                            <div className="md:hidden bg-white border-t border-gray-200">
+                            {/* Mobile Action Buttons */}
+                            <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-gray-200 p-4 z-50">
                                 <div className="flex gap-3">
                                     <button
                                         onClick={handleAddToCart}
@@ -432,13 +371,13 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Extra Info */}
-                            <div className="divide-y rounded-lg overflow-hidden mt-4">
+                            <div className="divide-y rounded-lg overflow-hidden mt-4 border border-gray-200">
                                 {['DETAILS', 'OFFER', 'REVIEWS', 'DELIVERY', 'RETURNS'].map(title => (
-                                    <details key={title} className="group p-4 border-b-gray-300">
+                                    <details key={title} className="group p-4">
                                         <summary className="cursor-pointer font-medium text-gray-800 group-open:text-black">
                                             {title}
                                         </summary>
-                                        <p
+                                        <div
                                             className="text-sm text-gray-600 mt-2"
                                             dangerouslySetInnerHTML={{
                                                 __html:
@@ -464,8 +403,8 @@ const ProductDetails = () => {
                             </div>
 
                             {/* Additional Info */}
-                            <div className="border-t border-gray-300 pt-6">
-                                <div className="flex items-center justify-between">
+                            <div className="border-t border-gray-200 pt-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="flex items-center space-x-3">
                                         <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -473,8 +412,8 @@ const ProductDetails = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-gray-600">Availability</span>
-                                            <span className="block text-green-600 font-medium">In Stock</span>
+                                            <span className="text-sm text-gray-600">Availability</span>
+                                            <span className="block text-sm font-medium text-green-600">In Stock</span>
                                         </div>
                                     </div>
 
@@ -486,8 +425,8 @@ const ProductDetails = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-gray-600">Shipping</span>
-                                            <span className="block text-gray-900">Free Delivery</span>
+                                            <span className="text-sm text-gray-600">Shipping</span>
+                                            <span className="block text-sm font-medium text-gray-900">Free Delivery</span>
                                         </div>
                                     </div>
 
@@ -498,8 +437,8 @@ const ProductDetails = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <span className="text-gray-600">Return Policy</span>
-                                            <span className="block text-gray-900">7 Days Return</span>
+                                            <span className="text-sm text-gray-600">Return Policy</span>
+                                            <span className="block text-sm font-medium text-gray-900">7 Days Return</span>
                                         </div>
                                     </div>
                                 </div>
@@ -508,7 +447,7 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </div>
-            <div className="mt-8">
+            <div className="mt-8 mb-20 md:mb-8">
                 {/* <SimilarProducts id={id} /> */}
             </div>
             <SizeChartModal isOpen={showSizeChart} onClose={() => setShowSizeChart(false)} />

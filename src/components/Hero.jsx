@@ -52,12 +52,14 @@ const Hero = () => {
     const fetchBanners = async () => {
         try {
             const response = await axios.get('https://admin-api.compactindiasolutions.com/api/user/banners');
+            console.log(response, 'response');
+            
             if (response.data.success) {
                 // Filter only active banners and map them to the required format
                 const activeBanners = response.data.banners
                     // .filter(banner => banner.status === 'Active')
                     .map(banner => ({
-                        image: banner.image,
+                        webImage: banner.webImage,
                         title: banner.title,
                         subtitle: '', // Add subtitle if available in API
                         buttonText: 'Shop Now' // Default button text
@@ -244,7 +246,7 @@ const Hero = () => {
                         <div className="absolute inset-0">
                             <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10"></div>
                             <img
-                                src={slide.image}
+                                src={slide.webImage}
                                 alt={slide.title}
                                 className="w-full h-full object-cover"
                             />

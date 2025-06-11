@@ -18,6 +18,7 @@ import useAuth from '../store/useAuth';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import MainTemplate from '../components/MainTemplate';
+import PageHeader from '../components/PageHeader';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -123,11 +124,7 @@ const Account = () => {
     <MainTemplate>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
         {/* Header */}
-        <div className="bg-white shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            <h1 className="text-2xl font-bold text-gray-800">Account</h1>
-          </div>
-        </div>
+        <PageHeader title="Account" />
 
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Profile Card */}

@@ -5,6 +5,7 @@ import MainTemplate from '../components/MainTemplate';
 import useCart from '../store/useCart';
 import useAuth from '../store/useAuth';
 import toast, { Toaster } from 'react-hot-toast';
+import PageHeader from '../components/PageHeader';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -91,13 +92,9 @@ const Cart = () => {
     return (
         <MainTemplate>
             <Toaster position="top-center" />
+            <PageHeader title="Cart" />
             <div className="min-h-screen bg-[#f1f3f6] py-8">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex items-center gap-3 mb-8">
-                        <ShoppingBag className="w-8 h-8" />
-                        <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-                    </div>
-
                     {!hasItems ? (
                         <div className="text-center py-16 bg-white rounded-sm shadow-sm">
                             <div className="w-24 h-24 mx-auto mb-6 bg-[#f1f3f6] rounded-full flex items-center justify-center">
