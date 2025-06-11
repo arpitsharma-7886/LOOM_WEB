@@ -21,10 +21,12 @@ const SearchResults = () => {
             
             setLoading(true);
             try {
-                const response = await axios.get(`https://product-api.compactindiasolutions.com/product/admin/prod/searchAnything?query=${encodeURIComponent(searchQuery)}`);
+                // const response = await axios.get(`https://product-api.compactindiasolutions.com/product/admin/prod/searchAnything?query=${encodeURIComponent(searchQuery)}`);
+                const response = await axios.get(`http://192.168.29.92:3002/product/admin/prod/searchAnything?query=${encodeURIComponent(searchQuery)}`);
                 console.log('Search API Response:', response.data);
                 
                 if (response.data.success && response.data.data && response.data.data.products) {
+                    console.log(response.data, "123")
                     setProducts(response.data.data.products);
                 } else {
                     setProducts([]);
@@ -120,7 +122,7 @@ const SearchResults = () => {
                                     title: product.title || product.name,
                                     price: product.lowestSellingPrice || product.price,
                                     discount: product.finalDiscountPercent || product.discount,
-                                    image: product.images?.[0]?.url || product.image
+                                    image: product.variantThumbnail.image
                                 }} 
                             />
                         ))}

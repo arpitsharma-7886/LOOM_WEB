@@ -9,8 +9,6 @@ const ProductCard = ({product}) => {
     const { addItem, removeItem, isInWishlist } = useWishlist();
     const isWishlisted = isInWishlist(product._id);
 
-    console.log("produtct",product)
-
     const handleClick = () => {
         navigate(`/product/${product._id}`);
     };
@@ -123,7 +121,7 @@ const ProductCard = ({product}) => {
             {/* Image section */}
             <div className="w-full h-[330px] overflow-hidden">
                 <img
-                    src={product?.images[0]?.url}
+                    src={product?.variantThumbnail?.image}
                     alt={product.title}
                     className="w-full h-full object-cover object-top cursor-pointer"
                     onClick={handleClick}
