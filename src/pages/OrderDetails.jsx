@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import MainTemplate from '../components/MainTemplate';
+import PageHeader from '../components/PageHeader';
 import { toast } from 'react-hot-toast';
 
 const OrderStatusBadge = ({ status }) => {
@@ -160,7 +161,7 @@ const OrderDetails = () => {
 
   const fetchOrderDetails = async () => {
     try {
-      const response = await axios.get(`http://192.168.29.92:3006/order/check/order_item_details/${orderId}`, {
+      const response = await axios.get(`https://order-api.compactindiasolutions.com/order/check/order_item_details/${orderId}`, {
         headers: {
           accesstoken: `${localStorage.getItem('token')}`,
         },
@@ -218,18 +219,10 @@ const OrderDetails = () => {
   return (
     <MainTemplate>
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-black text-white py-3 sm:py-4 px-4">
-          <div className="max-w-6xl mx-auto flex items-center gap-3 sm:gap-4">
-            <button onClick={() => navigate('/orders')} className="p-1.5 sm:p-2 hover:bg-gray-800 rounded-full cursor-pointer">
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <div>
-              <h1 className="text-base sm:text-xl font-medium">Order #{orderNumber}</h1>
-              <p className="text-xs sm:text-sm opacity-90">Placed on {new Date(orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title={`Order #${orderNumber}`} 
+          subtitle={`Placed on ${new Date(orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+        />
 
         <div className="max-w-6xl mx-auto py-4 sm:py-6 px-4 space-y-4 sm:space-y-6">
           {/* Order Status Timeline */}

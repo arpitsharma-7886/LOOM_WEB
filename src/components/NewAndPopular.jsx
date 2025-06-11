@@ -67,28 +67,31 @@ const NewAndPopular = () => {
     : products.filter(p => p.subcategory?.name === activeCategory);
 
   return (
-    <div className="py-10 px-5 bg-gray-50">
-      <h2 className="text-3xl font-bold text-center mb-10">NEW AND POPULAR</h2>
+    <div className="py-4 sm:py-8 md:py-10 px-3 sm:px-4 md:px-5 bg-gray-50">
+      <h2 className="text-2xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-10">NEW AND POPULAR</h2>
 
       {/* Categories */}
-      <div className="flex flex-wrap justify-center gap-2 mb-6">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => handleCategoryChange(cat)}
-            className={`px-4 py-2 border rounded-md text-sm font-medium ${activeCategory === cat
-              ? "bg-black text-white"
-              : "bg-white text-black border-gray-300"
+      <div className="overflow-x-auto pb-2 mb-4 sm:mb-6">
+        <div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-2 min-w-min px-3">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 border rounded-md text-sm whitespace-nowrap font-medium transition-colors duration-200 ${
+                activeCategory === cat
+                ? "bg-black text-white"
+                : "bg-white text-black border-gray-300 hover:bg-gray-50"
               }`}
-          >
-            {cat}
-          </button>
-        ))}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Products Grid */}
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {filteredProducts.map((product, index) => {
             const isLastProduct = index === filteredProducts.length - 1;
             return (
@@ -102,7 +105,7 @@ const NewAndPopular = () => {
           })}
         </div>
         {!hasMore && (
-          <div className="text-center text-gray-500 mt-6">No more products to load.</div>
+          <div className="text-center text-gray-500 mt-4 sm:mt-6">No more products to load.</div>
         )}
       </div>
     </div>

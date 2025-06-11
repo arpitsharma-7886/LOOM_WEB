@@ -9,6 +9,7 @@ import AddressForm from '../components/AddressForm';
 // import CustomPaymentModal from '../components/CustomPaymentModal';
 import PaymentPage from './PaymentPage';
 import axios from 'axios';
+import PageHeader from '../components/PageHeader';
 
 
 
@@ -189,7 +190,7 @@ const Checkout = () => {
       setLoading(true);
       
       // Create checkout order
-      const checkoutResponse = await axios.post('http://192.168.29.92:3006/order/check/checkout', {
+      const checkoutResponse = await axios.post('https://order-api.compactindiasolutions.com/order/check/checkout', {
         addressId: selectedAddress.id,
         couponCode: "", // Add coupon handling if needed
         couponDiscount: 0,
@@ -200,6 +201,8 @@ const Checkout = () => {
         }
       });
 
+      console.log(checkoutResponse,'checkoutResponse');
+      
       if (!checkoutResponse.data?.success) {
         throw new Error(checkoutResponse.data?.message || 'Checkout failed');
       }
@@ -221,7 +224,7 @@ const Checkout = () => {
       });
 
     } catch (error) {
-      console.error('Checkout Error:', error);
+      console.error('Checkout Error:', error.message);
       toast.error(error.message || 'Failed to process checkout');
     } finally {
       setLoading(false);
@@ -232,19 +235,7 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-lg font-semibold ml-4">Checkout</h1>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Checkout" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

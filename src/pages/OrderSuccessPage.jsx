@@ -2,6 +2,7 @@ import React from 'react';
 import MainTemplate from '../components/MainTemplate';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, Package, Truck, MapPin, Clock } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 const OrderSuccessPage = () => {
   const navigate = useNavigate();
@@ -53,6 +54,10 @@ const OrderSuccessPage = () => {
 
   return (
     <MainTemplate>
+      <PageHeader 
+        title="Order Confirmation" 
+        showBackButton={false}
+      />
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-3xl mx-auto px-4">
           {/* Success Message */}

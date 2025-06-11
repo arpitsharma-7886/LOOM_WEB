@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import MainTemplate from '../components/MainTemplate';
+import PageHeader from '../components/PageHeader';
 import useAuth from '../store/useAuth';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
@@ -23,7 +24,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://192.168.29.92:3006/order/check/order_item', {
+      const response = await axios.get('https://order-api.compactindiasolutions.com/order/check/order_item', {
         headers: {
           'accesstoken': `${localStorage.getItem('token')}`
         }
@@ -45,16 +46,7 @@ const Orders = () => {
 
   return (
     <>
-      <div className="bg-black text-white py-3 sm:py-4 px-4">
-        <div className="max-w-6xl mx-auto flex items-center gap-2 sm:gap-4">
-          <button onClick={() => navigate(-1)} className="p-1 sm:p-2 hover:bg-gray-800 rounded-full cursor-pointer">
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-          <div>
-            <h1 className="text-lg sm:text-xl font-medium">Orders</h1>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Orders" />
 
       <div className="bg-gray-100 min-h-screen">
         <div className="max-w-6xl mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
