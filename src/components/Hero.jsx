@@ -288,14 +288,14 @@ const Hero = () => {
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-gray-900/50 hover:bg-gray-900/100 text-white transition-all"
                         aria-label="Previous slide"
                     >
                         <ChevronLeft size={24} />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-gray-600/50 hover:bg-gray-900/100 text-white transition-all"
                         aria-label="Next slide"
                     >
                         <ChevronRight size={24} />
