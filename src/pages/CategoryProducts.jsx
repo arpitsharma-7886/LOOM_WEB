@@ -58,7 +58,7 @@ const CategoryProducts = () => {
   };
 
   const buildApiUrl = () => {
-    let url = `https://product-api.compactindiasolutions.com/product/admin/prod/get_product_BySubcategory2/${id}`;
+    let url = `http://192.168.29.92:3002/product/admin/prod/get_product_BySubcategory3/${id}`;
     const params = new URLSearchParams();
     const selectedSort = sortOptions.find(option => option.value === sortBy);
     if (selectedSort) params.append('sort', selectedSort.apiValue);
